@@ -181,6 +181,7 @@ nixlPluginManager::nixlPluginManager() {
     // Check for NIXL_PLUGIN_DIR environment variable
     const char* plugin_dir = getenv("NIXL_PLUGIN_DIR");
     if (plugin_dir) {
+        std::cout << "Loading plugins from directory NIXL_PLUGIN_DIR: " << plugin_dir << std::endl;
         plugin_dirs_.insert(plugin_dirs_.begin(), plugin_dir);  // Insert at the beginning for priority
         discoverPluginsFromDir(plugin_dir);
     }
@@ -276,15 +277,19 @@ void nixlPluginManager::discoverPluginsFromDir(const std::string& dirpath) {
         // Check if this is a plugin file
         if (filename.substr(0, 10) == "libplugin_" &&
             filename.substr(filename.size() - 3) == ".so") {
-
             // Extract plugin name
             std::string plugin_name = filename.substr(10, filename.size() - 13);
+            std::cout << "Found plugin: " << plugin_name << std::endl;
 
             // Try to load the plugin
             auto plugin = loadPlugin(plugin_name);
             if (plugin) {
                std::cout << "Loaded plugin " << plugin_name << std::endl;
+            } else {
+                std::cerr << "Failed to load plugin " << plugin_name << std::endl;
             }
+        } else {
+            std::cout << "Skipping non-plugin file: " << filename << std::endl;
         }
     }
 
